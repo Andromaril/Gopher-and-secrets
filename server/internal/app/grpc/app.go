@@ -53,7 +53,7 @@ func (a *App) MustRun() {
 
 // Run запускает gRPC сервер
 func (a *App) Run() error {
-	l, err := net.Listen("tcp", fmt.Sprintf(":%s", a.port))
+	l, err := net.Listen("tcp", fmt.Sprintf("%s", a.port))
 	if err != nil {
 		return fmt.Errorf("error start server: %w", err)
 	}
