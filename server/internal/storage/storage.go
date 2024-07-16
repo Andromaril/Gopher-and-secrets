@@ -52,7 +52,7 @@ func (s *Storage) SaveUser(ctx context.Context, login string, password []byte) (
 func (s *Storage) GetUser(ctx context.Context, login string) (model.User, error) {
 	rows := s.DB.QueryRowContext(ctx, "SELECT id, login, password FROM users WHERE login=$1", login)
 	var user model.User
-	err := rows.Scan(&user.ID, &user.Email, &user.PasswordHash)
+	err := rows.Scan(&user.ID, &user.Login, &user.PasswordHash)
 	if err != nil {
 		log.Error("error in scan from user select", err)
 		return model.User{}, fmt.Errorf("error in scan from user select: %w", err)

@@ -43,7 +43,7 @@ var registerCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(registerCmd)
-	registerCmd.Flags().StringVarP(&User.Email, "login", "l", "", "new login")
+	registerCmd.Flags().StringVarP(&User.Login, "login", "l", "", "new login")
 	registerCmd.Flags().StringVarP(&User.Password, "password", "p", "", "new password")
 	registerCmd.MarkFlagRequired("login")
 	registerCmd.MarkFlagRequired("password")

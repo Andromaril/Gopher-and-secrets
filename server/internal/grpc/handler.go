@@ -31,11 +31,11 @@ func Register(gRPCServer *grpc.Server, auth Auth) {
 
 // Login обработчик запроса логина
 func (s *serverAPI) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginResponse, error) {
-	if in.Email == "" || in.Password == "" {
+	if in.Login == "" || in.Password == "" {
 		return nil, status.Error(codes.InvalidArgument, "email and password is required")
 	}
 
-	token, err := s.auth.Login(ctx, in.GetEmail(), in.GetPassword())
+	token, err := s.auth.Login(ctx, in.GetLogin(), in.GetPassword())
 	if err != nil {
 		if errors.Is(err, construct.ErrInvalidCredentials) {
 			return nil, status.Error(codes.InvalidArgument, "invalid email or password")
@@ -48,11 +48,11 @@ func (s *serverAPI) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginRe
 // Register обработчик запроса регистрации
 func (s *serverAPI) Register(ctx context.Context, in *pb.RegisterRequest,
 ) (*pb.RegisterResponse, error) {
-	if in.Email == "" || in.Password == "" {
+	if in.Login == "" || in.Password == "" {
 		return nil, status.Error(codes.InvalidArgument, "email and password is required")
 	}
 
-	id, err := s.auth.RegisterNewUser(ctx, in.GetEmail(), in.GetPassword())
+	id, err := s.auth.RegisterNewUser(ctx, in.GetLogin(), in.GetPassword())
 	if err != nil {
 		if errors.Is(err, storage.ErrUserExists) {
 			return nil, status.Error(codes.AlreadyExists, "user already exists")
