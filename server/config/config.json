@@ -1,4 +1,4 @@
 {
-    "port": "44044",
+    "port": "localhost:44044",
     "database_dsn" : "postgres://postgres:qwerty123@localhost:5432/server"
 }

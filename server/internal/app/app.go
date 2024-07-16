@@ -10,6 +10,7 @@ import (
 	"github.com/Andromaril/Gopher-and-secrets/server/internal/storage"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	log "github.com/sirupsen/logrus"
 )
 
 // App структура сервера
@@ -23,6 +24,7 @@ func New(grpcPort string, storagePath string, tokenTTL time.Duration) *App {
 	if err != nil {
 		panic(err)
 	}
+	log.Infof("Init database")
 	//defer db2.Close()
 	authService := construct.New(db, db, tokenTTL)
 

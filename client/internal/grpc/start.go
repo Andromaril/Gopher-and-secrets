@@ -2,6 +2,8 @@
 package grpc
 
 import (
+	"log/slog"
+
 	"github.com/Andromaril/Gopher-and-secrets/client/internal/config"
 	pb "github.com/Andromaril/Gopher-and-secrets/server/proto"
 	log "github.com/sirupsen/logrus"
@@ -15,7 +17,7 @@ func Init() (pb.AuthClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Infof("grpc client started adress=%s", config.ConfigKey)
+	log.Info("grpc client started ", slog.String("addr", config.GrpcPort))
 	c := pb.NewAuthClient(conn)
 	return c, nil
 }
