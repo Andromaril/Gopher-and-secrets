@@ -17,6 +17,7 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+// UserLogin запрос сервису
 var (
 	UserLogin pb.LoginRequest
 )
