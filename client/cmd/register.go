@@ -21,7 +21,7 @@ var (
 var registerCmd = &cobra.Command{
 	Use:   "register",
 	Short: "register new user",
-	Long: `register new user, use: client register and flag -l for login, -p for password`,
+	Long:  `register new user, use: client register and flag -l for login, -p for password`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Начата регистрация")
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
