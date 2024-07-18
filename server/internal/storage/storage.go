@@ -59,3 +59,19 @@ func (s *Storage) GetUser(ctx context.Context, login string) (model.User, error)
 	}
 	return user, nil
 }
+
+// SaveSecret добавление нового секрета в бд
+func (s *Storage) SaveSecret(ctx context.Context, userID int64, secret []byte, meta string, comment []byte) (int64, error) {
+	var id int64
+	err := s.DB.QueryRow(`
+	INSERT INTO secrets (user_id, secret, meta, comment)
+	VALUES($1, $2, $3, $4) RETURNING id`, userID, secret, meta, comment).Scan(&id)
+	// if err != nil {
+	// 	return 0, fmt.Errorf("error insert %w", err)
+	// }
+	//id, err := res.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("error insert in save secrets: %w", err)
+	}
+	return id, nil
+}

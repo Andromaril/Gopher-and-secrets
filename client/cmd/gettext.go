@@ -8,6 +8,7 @@ import (
 	"os/user"
 
 	"github.com/Andromaril/Gopher-and-secrets/client/internal/local"
+	"github.com/Andromaril/Gopher-and-secrets/server/secret"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -28,12 +29,23 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			log.Fatalln(err)
 		}
+		username, ok := local.User[user.Username]
+		if !ok {
+			fmt.Println("User not authenticated.")
+			return
+		}
+		log.Info(username)
 		jwt, ok := local.User[user.Username]
 		if !ok {
 			fmt.Println("User not authenticated.")
 			return
 		}
-		log.Info(jwt)
+		id, err := secret.DecodeToken(jwt)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		fmt.Println(id)
+
 	},
 }
 

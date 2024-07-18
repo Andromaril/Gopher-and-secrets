@@ -26,9 +26,9 @@ func New(grpcPort string, storagePath string, tokenTTL time.Duration) *App {
 	}
 	log.Infof("Init database")
 	//defer db2.Close()
-	authService := construct.New(db, db, tokenTTL)
-
-	grpcApp := grpcapp.New(authService, grpcPort)
+	authService := construct.New(db, db, tokenTTL, db)
+	secretService := construct.NewSecret(db, db, tokenTTL, db)
+	grpcApp := grpcapp.New(authService, grpcPort, secretService)
 
 	return &App{
 		GRPCServer: grpcApp,

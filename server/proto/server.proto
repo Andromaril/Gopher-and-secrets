@@ -22,7 +22,19 @@ message LoginResponse {
     string token = 1; 
 }
 
+message AddSecretRequest {
+   int64 user_id = 1;
+   string secret = 2;
+   string meta = 3;
+   string comment = 4;
+}
+
+message AddSecretResponse {
+   int64 secret_id = 1; 
+}
+
 service Auth {
    rpc Register (RegisterRequest) returns (RegisterResponse);
    rpc Login (LoginRequest) returns (LoginResponse);
+   rpc AddSecret (AddSecretRequest) returns (AddSecretResponse);
 }

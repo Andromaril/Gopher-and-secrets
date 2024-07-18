@@ -22,7 +22,7 @@ type App struct {
 }
 
 // New создает новый экземпляр структуры App
-func New(authService authgrpc.Auth, port string) *App {
+func New(authService authgrpc.Auth, port string, secretService authgrpc.Secret) *App {
 
 	recoveryOpts := []recovery.Option{
 		recovery.WithRecoveryHandler(func(p interface{}) (err error) {
@@ -36,7 +36,7 @@ func New(authService authgrpc.Auth, port string) *App {
 		recovery.UnaryServerInterceptor(recoveryOpts...),
 	))
 
-	authgrpc.Register(gRPCServer, authService)
+	authgrpc.Register(gRPCServer, authService, secretService)
 
 	return &App{
 		gRPCServer: gRPCServer,

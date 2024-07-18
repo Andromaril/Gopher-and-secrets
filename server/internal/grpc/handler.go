@@ -15,7 +15,8 @@ import (
 
 type serverAPI struct {
 	pb.UnimplementedAuthServer
-	auth Auth
+	auth   Auth
+	secret Secret
 }
 
 // Auth интерфейс описывающий авторизацию
@@ -24,9 +25,13 @@ type Auth interface {
 	RegisterNewUser(ctx context.Context, email string, password string) (userID int64, err error)
 }
 
+type Secret interface {
+	SaveSecret(ctx context.Context, userID int64, secret []byte, meta string, comment []byte) (uid int64, err error)
+}
+
 // Register регистрация grpc сервиса
-func Register(gRPCServer *grpc.Server, auth Auth) {
-	pb.RegisterAuthServer(gRPCServer, &serverAPI{auth: auth})
+func Register(gRPCServer *grpc.Server, auth Auth, secret Secret) {
+	pb.RegisterAuthServer(gRPCServer, &serverAPI{auth: auth, secret: secret})
 }
 
 // Login обработчик запроса логина
@@ -61,4 +66,21 @@ func (s *serverAPI) Register(ctx context.Context, in *pb.RegisterRequest,
 		return nil, status.Error(codes.Internal, "failed to register user")
 	}
 	return &pb.RegisterResponse{UserId: id}, nil
+}
+
+func (s *serverAPI) AddSecret(ctx context.Context, in *pb.AddSecretRequest,
+) (*pb.AddSecretResponse, error) {
+	if in.UserId == 0 || in.Secret == "" {
+		return nil, status.Error(codes.InvalidArgument, "user id and secret is required")
+	}
+
+	id, err := s.secret.SaveSecret(ctx, in.GetUserId(), []byte(in.GetSecret()), in.GetMeta(), []byte(in.GetComment()))
+	if err != nil {
+		// if errors.Is(err, storage.ErrUserExists) {
+		// 	return nil, status.Error(codes.AlreadyExists, "secret already exists")
+		// }
+
+		return nil, status.Error(codes.Internal, "failed to save secret")
+	}
+	return &pb.AddSecretResponse{SecretId: id}, nil
 }

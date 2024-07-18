@@ -14,7 +14,6 @@ import (
 	pb "github.com/Andromaril/Gopher-and-secrets/server/proto"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"google.golang.org/grpc/metadata"
 )
 
 // UserLogin запрос сервису
@@ -50,7 +49,7 @@ var loginCmd = &cobra.Command{
 			return
 		}
 		local.User[u.Username] = res.GetToken()
-		metadata.AppendToOutgoingContext(context.Background(), "authorization", "Bearer "+res.GetToken())
+		//metadata.AppendToOutgoingContext(context.Background(), "authorization", "Bearer "+res.GetToken())
 		//log.Info(local.User)
 		fmt.Printf("Логин прошел успешно")
 	},
