@@ -18,7 +18,6 @@ import (
 type Auth struct {
 	usrSave  UserSave
 	usrGet   UserGet
-	scrSave  SecretSave
 	tokenTTL time.Duration
 }
 
@@ -38,12 +37,11 @@ type UserGet interface {
 }
 
 // New для создания экземпляра структуры Auth
-func New(userSave UserSave, userGet UserGet, tokenTTL time.Duration, scrSave SecretSave) *Auth {
+func New(userSave UserSave, userGet UserGet, tokenTTL time.Duration) *Auth {
 	return &Auth{
 		usrSave:  userSave,
 		usrGet:   userGet,
 		tokenTTL: tokenTTL,
-		scrSave:  scrSave,
 	}
 }
 
@@ -98,8 +96,4 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (token 
 	}
 
 	return jwt, nil
-}
-
-func (a *Auth) SaveSecret(ctx context.Context, userID int64, secret []byte, meta string, comment []byte) (uid int64, err error) {
-	return 0, nil
 }
