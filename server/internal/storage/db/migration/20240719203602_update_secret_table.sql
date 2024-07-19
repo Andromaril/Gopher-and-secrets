@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS secrets (
 			user_id int NOT NULL,
 			secret VARCHAR(8000) UNIQUE NOT NULL, 
 			meta varchar NOT NULL,
-			comment varchar			
+			comment varchar(8000)			
 		);
 -- +goose StatementEnd
 

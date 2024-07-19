@@ -1,28 +1,26 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
+// Package cmd cli получение текстовых секретов
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os/user"
+	"time"
 
+	"github.com/Andromaril/Gopher-and-secrets/client/internal/grpc"
 	"github.com/Andromaril/Gopher-and-secrets/client/internal/local"
+	pb "github.com/Andromaril/Gopher-and-secrets/server/proto"
 	"github.com/Andromaril/Gopher-and-secrets/server/secret"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"google.golang.org/grpc/metadata"
 )
 
 // gettextCmd represents the gettext command
 var gettextCmd = &cobra.Command{
 	Use:   "gettext",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "get your secret text",
+	Long: `get your secret text use: client gettext`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("gettext called")
 		user, err := user.Current()
@@ -31,13 +29,13 @@ to quickly create a Cobra application.`,
 		}
 		username, ok := local.User[user.Username]
 		if !ok {
-			fmt.Println("User not authenticated.")
+			fmt.Println("Вы не авторизированы, залогиньтесь или зарегистрируйтесь")
 			return
 		}
 		log.Info(username)
 		jwt, ok := local.User[user.Username]
 		if !ok {
-			fmt.Println("User not authenticated.")
+			fmt.Println("Вы не авторизированы, залогиньтесь или зарегистрируйтесь")
 			return
 		}
 		id, err := secret.DecodeToken(jwt)
@@ -45,21 +43,24 @@ to quickly create a Cobra application.`,
 			log.Fatalln(err)
 		}
 		fmt.Println(id)
-
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+		defer cancel()
+		c, err := grpc.Init()
+		if err != nil {
+			log.Fatalln(err)
+			return
+		}
+		ctxjwt := metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+jwt)
+		res, err := c.GetSecret(ctxjwt, &pb.GetSecretRequest{UserId: id, Meta: "secret text"})
+		if err != nil {
+			fmt.Println("Не удалось получить секреты, пожалуйста, попробуйте еще раз")
+			return
+		}
+		fmt.Println(res)
+		fmt.Printf("Текстовые секреты успешно получены")
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(gettextCmd)
-	gettextCmd.Flags().String("title", "t", "Text title to search for.")
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// gettextCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// gettextCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

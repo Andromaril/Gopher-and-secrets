@@ -1,4 +1,4 @@
-// Package cmd для cli регистрации пользователя
+// Package cmd cli регистрация пользователя
 package cmd
 
 import (

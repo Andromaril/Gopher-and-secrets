@@ -33,8 +33,26 @@ message AddSecretResponse {
    int64 secret_id = 1; 
 }
 
+message Secret {
+   int64 secret_id = 1; 
+   int64 user_id = 2;
+   string secret = 3;
+   string meta = 4;
+   string comment = 5;
+}
+
+message GetSecretRequest {
+   int64 user_id = 1;
+   string meta = 2;
+}
+
+message GetSecretResponse {
+   repeated Secret secret = 1; 
+
+}
 service Auth {
    rpc Register (RegisterRequest) returns (RegisterResponse);
    rpc Login (LoginRequest) returns (LoginResponse);
    rpc AddSecret (AddSecretRequest) returns (AddSecretResponse);
+   rpc GetSecret (GetSecretRequest) returns (GetSecretResponse);
 }

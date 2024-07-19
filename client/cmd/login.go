@@ -1,6 +1,4 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
+// Package cmd cli логин пользователя
 package cmd
 
 import (
@@ -25,7 +23,7 @@ var (
 var loginCmd = &cobra.Command{
 	Use:   "login",
 	Short: "login new user",
-	Long:  `login new user, use: client register and flag -l for login, -p for password`,
+	Long:  `login new user, use: client login and flag -l for login, -p for password`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Начат процесс логина")
 		u, err := user.Current()

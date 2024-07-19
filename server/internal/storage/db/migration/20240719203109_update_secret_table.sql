@@ -3,9 +3,9 @@
 CREATE TABLE IF NOT EXISTS secrets (
 			id SERIAL PRIMARY KEY,
 			user_id int NOT NULL,
-			secret VARCHAR(8000) UNIQUE NOT NULL, 
+			secret bytea UNIQUE NOT NULL, 
 			meta varchar NOT NULL,
-			comment varchar			
+			comment bytea			
 		);
 -- +goose StatementEnd
 

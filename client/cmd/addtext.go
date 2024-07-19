@@ -1,6 +1,4 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
+// Package cmd cli добавления текстовых секретов
 package cmd
 
 import (
@@ -19,6 +17,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewSecret переменная запроса на добавление секрета
 var (
 	NewSecret pb.AddSecretRequest
 )
@@ -26,13 +25,8 @@ var (
 // addtextCmd represents the addtext command
 var addtextCmd = &cobra.Command{
 	Use:   "addtext",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "add text secret",
+	Long: `add text secret, use: client addtext and flags -s secret -c comment`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("addtext called")
 		user, err := user.Current()
@@ -76,17 +70,7 @@ to quickly create a Cobra application.`,
 func init() {
 	rootCmd.AddCommand(addtextCmd)
 	addtextCmd.Flags().StringVarP(&NewSecret.Secret, "secret", "s", "", "new secret")
-	addtextCmd.Flags().StringVarP(&NewSecret.Comment, "comment", "p", "", "new comment")
+	addtextCmd.Flags().StringVarP(&NewSecret.Comment, "comment", "c", "", "new comment")
 	addtextCmd.MarkFlagRequired("secret")
 	addtextCmd.MarkFlagRequired("comment")
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// addtextCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// addtextCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

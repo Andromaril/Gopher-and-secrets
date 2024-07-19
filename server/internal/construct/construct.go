@@ -73,7 +73,7 @@ func (a *Auth) Login(ctx context.Context, email string, password string) (token 
 	user, err := a.usrGet.GetUser(ctx, email)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
-			log.Warn("user not found", err)
+			log.Error("user not found", err)
 
 			return "", fmt.Errorf("error get user: %w", ErrInvalidCredentials)
 		}

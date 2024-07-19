@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/Andromaril/Gopher-and-secrets/server/internal/construct"
+	"github.com/Andromaril/Gopher-and-secrets/server/internal/model"
 	"github.com/Andromaril/Gopher-and-secrets/server/internal/storage"
 	pb "github.com/Andromaril/Gopher-and-secrets/server/proto"
 	"google.golang.org/grpc"
@@ -25,8 +26,11 @@ type Auth interface {
 	RegisterNewUser(ctx context.Context, email string, password string) (userID int64, err error)
 }
 
+// Secret интерфейс описывающий секрет
 type Secret interface {
-	SaveSecret(ctx context.Context, userID int64, secret []byte, meta string, comment []byte) (uid int64, err error)
+	SaveSecret(ctx context.Context, userID int64, secret string, meta string, comment string) (uid int64, err error)
+	GetNewSecret(ctx context.Context, userID int64, meta string) ([]model.Secret, error)
+	//GetSecret(ctx context.Context, userID int64) (model.Secret, error)
 }
 
 // Register регистрация grpc сервиса
@@ -74,7 +78,7 @@ func (s *serverAPI) AddSecret(ctx context.Context, in *pb.AddSecretRequest,
 		return nil, status.Error(codes.InvalidArgument, "user id and secret is required")
 	}
 
-	id, err := s.secret.SaveSecret(ctx, in.GetUserId(), []byte(in.GetSecret()), in.GetMeta(), []byte(in.GetComment()))
+	id, err := s.secret.SaveSecret(ctx, in.GetUserId(), in.GetSecret(), in.GetMeta(), in.GetComment())
 	if err != nil {
 		// if errors.Is(err, storage.ErrUserExists) {
 		// 	return nil, status.Error(codes.AlreadyExists, "secret already exists")
@@ -83,4 +87,31 @@ func (s *serverAPI) AddSecret(ctx context.Context, in *pb.AddSecretRequest,
 		return nil, status.Error(codes.Internal, "failed to save secret")
 	}
 	return &pb.AddSecretResponse{SecretId: id}, nil
+}
+
+func (s *serverAPI) GetSecret(ctx context.Context, in *pb.GetSecretRequest,
+) (*pb.GetSecretResponse, error) {
+	if in.UserId == 0 {
+		return nil, status.Error(codes.InvalidArgument, "user id is required")
+	}
+
+	secret, err := s.secret.GetNewSecret(ctx, in.GetUserId(), in.GetMeta())
+	if err != nil {
+		if errors.Is(err, storage.ErrSecretNotFound) {
+			return nil, status.Error(codes.NotFound, "secret not found")
+		}
+
+		return nil, status.Error(codes.Internal, "failed to get secret")
+	}
+	var pbSecrets []*pb.Secret
+	for _, secret := range secret {
+		pbSecrets = append(pbSecrets, &pb.Secret{
+			SecretId: secret.SecretID,
+			UserId:   secret.ID,
+			Secret:   secret.Secret,
+			Meta:     secret.Meta,
+			Comment:  secret.Comment,
+		})
+	}
+	return &pb.GetSecretResponse{Secret: pbSecrets}, nil
 }
