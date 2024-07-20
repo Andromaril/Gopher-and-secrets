@@ -14,6 +14,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+var success = "success"
+
 type serverAPI struct {
 	pb.UnimplementedAuthServer
 	auth   Auth
@@ -28,9 +30,11 @@ type Auth interface {
 
 // Secret интерфейс описывающий секрет
 type Secret interface {
-	SaveSecret(ctx context.Context, userID int64, secret string, meta string, comment string) (uid int64, err error)
+	SaveSecret(ctx context.Context, userID int64, secret string, meta string, comment string) (int64, error)
 	GetNewSecret(ctx context.Context, userID int64, meta string) ([]model.Secret, error)
+	UpdateSecret(ctx context.Context, userID int64, secret string, secretnew string) error
 	//GetSecret(ctx context.Context, userID int64) (model.Secret, error)
+	DeleteSecret(ctx context.Context, userID int64, sec string) error
 }
 
 // Register регистрация grpc сервиса
@@ -80,10 +84,6 @@ func (s *serverAPI) AddSecret(ctx context.Context, in *pb.AddSecretRequest,
 
 	id, err := s.secret.SaveSecret(ctx, in.GetUserId(), in.GetSecret(), in.GetMeta(), in.GetComment())
 	if err != nil {
-		// if errors.Is(err, storage.ErrUserExists) {
-		// 	return nil, status.Error(codes.AlreadyExists, "secret already exists")
-		// }
-
 		return nil, status.Error(codes.Internal, "failed to save secret")
 	}
 	return &pb.AddSecretResponse{SecretId: id}, nil
@@ -114,4 +114,30 @@ func (s *serverAPI) GetSecret(ctx context.Context, in *pb.GetSecretRequest,
 		})
 	}
 	return &pb.GetSecretResponse{Secret: pbSecrets}, nil
+}
+
+func (s *serverAPI) UpdateSecret(ctx context.Context, in *pb.UpdateSecretRequest,
+) (*pb.UpdateSecretResponse, error) {
+	if in.UserId == 0 || in.Secret == "" {
+		return nil, status.Error(codes.InvalidArgument, "user id and secret is required")
+	}
+
+	err := s.secret.UpdateSecret(ctx, in.GetUserId(), in.GetSecret(), in.GetSecretNew())
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to update secret")
+	}
+	return &pb.UpdateSecretResponse{Status: success}, nil
+}
+
+func (s *serverAPI) DeleteSecret(ctx context.Context, in *pb.DeleteSecretRequest,
+) (*pb.DeleteSecretResponse, error) {
+	if in.UserId == 0 || in.Secret == "" {
+		return nil, status.Error(codes.InvalidArgument, "user id and secret is required")
+	}
+
+	err := s.secret.DeleteSecret(ctx, in.GetUserId(), in.GetSecret())
+	if err != nil {
+		return nil, status.Error(codes.Internal, "failed to update secret")
+	}
+	return &pb.DeleteSecretResponse{Status: success}, nil
 }

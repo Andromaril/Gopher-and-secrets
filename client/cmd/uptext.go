@@ -1,4 +1,4 @@
-// Package cmd cli получение текстовых секретов
+// Package cmd cli обновления секретов
 package cmd
 
 import (
@@ -16,13 +16,18 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// gettextCmd represents the gettext command
-var gettextCmd = &cobra.Command{
-	Use:   "gettext",
-	Short: "get your secret text",
-	Long:  `get your secret text use: client gettext`,
+// UpdateSecret структура запроса обновления секрета
+var (
+	UpdateSecret pb.UpdateSecretRequest
+)
+
+// uptextCmd represents the uptext command
+var uptextCmd = &cobra.Command{
+	Use:   "uptext",
+	Short: "update your secret text",
+	Long:  `update your secret text use: client uptext`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("gettext called")
+		fmt.Println("Начат процесс обновления секрета")
 		user, err := user.Current()
 		if err != nil {
 			log.Fatalln(err)
@@ -45,23 +50,19 @@ var gettextCmd = &cobra.Command{
 			return
 		}
 		ctxjwt := metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+jwt)
-		res, err := c.GetSecret(ctxjwt, &pb.GetSecretRequest{UserId: id, Meta: "secret text"})
+		_, err = c.UpdateSecret(ctxjwt, &pb.UpdateSecretRequest{UserId: id, Secret: UpdateSecret.Secret, SecretNew: UpdateSecret.SecretNew})
 		if err != nil {
-			fmt.Println("Не удалось получить секреты, пожалуйста, попробуйте еще раз")
+			fmt.Println("Не удалось обновить секрет, пожалуйста, попробуйте еще раз")
 			return
 		}
-		for _, i := range res.Secret {
-			if i.Comment != "" {
-				fmt.Printf("secret: %s, comment: %s \n", i.Secret, i.Comment)
-			} else {
-				fmt.Printf("secret: %s, comment: нет комментария \n", i.Secret)
-			}
-		}
-		//fmt.Println(res)
-		fmt.Printf("Текстовые секреты успешно получены")
+		fmt.Println("Секрет успешно обновлен")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(gettextCmd)
+	rootCmd.AddCommand(uptextCmd)
+	uptextCmd.Flags().StringVarP(&UpdateSecret.Secret, "secret", "o", "", "old secret")
+	uptextCmd.Flags().StringVarP(&UpdateSecret.SecretNew, "secret new", "n", "", "new secret")
+	uptextCmd.MarkFlagRequired("secret")
+	uptextCmd.MarkFlagRequired("secret new")
 }

@@ -50,9 +50,32 @@ message GetSecretResponse {
    repeated Secret secret = 1; 
 
 }
+
+message UpdateSecretRequest {
+   int64 user_id = 1;
+   string secret = 2;
+   string secret_new = 3;
+}
+
+message UpdateSecretResponse {
+   string status = 1; 
+}
+
+message DeleteSecretRequest {
+   int64 user_id = 1;
+   string secret = 2;
+}
+
+message DeleteSecretResponse {
+   string status = 1; 
+}
+
+
 service Auth {
    rpc Register (RegisterRequest) returns (RegisterResponse);
    rpc Login (LoginRequest) returns (LoginResponse);
    rpc AddSecret (AddSecretRequest) returns (AddSecretResponse);
    rpc GetSecret (GetSecretRequest) returns (GetSecretResponse);
+   rpc UpdateSecret (UpdateSecretRequest) returns (UpdateSecretResponse);
+   rpc DeleteSecret (DeleteSecretRequest) returns (DeleteSecretResponse);
 }

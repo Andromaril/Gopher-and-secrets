@@ -22,23 +22,21 @@ var (
 	NewSecret pb.AddSecretRequest
 )
 
+// var (
+// 	NewSecret2 []byte
+// )
+
 // addtextCmd represents the addtext command
 var addtextCmd = &cobra.Command{
 	Use:   "addtext",
 	Short: "add text secret",
-	Long: `add text secret, use: client addtext and flags -s secret -c comment`,
+	Long:  `add text secret, use: client addtext and flags -s secret -c comment`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("addtext called")
+		fmt.Println("Начат процесс добавления секрета")
 		user, err := user.Current()
 		if err != nil {
 			log.Fatalln(err)
 		}
-		username, ok := local.User[user.Username]
-		if !ok {
-			fmt.Println("Вы не авторизированы, залогиньтесь или зарегистрируйтесь")
-			return
-		}
-		log.Info(username)
 		jwt, ok := local.User[user.Username]
 		if !ok {
 			fmt.Println("Вы не авторизированы, залогиньтесь или зарегистрируйтесь")
@@ -70,7 +68,7 @@ var addtextCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(addtextCmd)
 	addtextCmd.Flags().StringVarP(&NewSecret.Secret, "secret", "s", "", "new secret")
-	addtextCmd.Flags().StringVarP(&NewSecret.Comment, "comment", "c", "", "new comment")
+	//addtextCmd.Flags().BytesBase64VarP(&NewSecret2, "body", "b", nil, "Binary data to save.")
+	addtextCmd.Flags().StringVarP(&NewSecret.Comment, "comment", "c", "", "new comment, optional")
 	addtextCmd.MarkFlagRequired("secret")
-	addtextCmd.MarkFlagRequired("comment")
 }

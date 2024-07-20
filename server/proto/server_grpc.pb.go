@@ -19,10 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	Auth_Register_FullMethodName  = "/server.Auth/Register"
-	Auth_Login_FullMethodName     = "/server.Auth/Login"
-	Auth_AddSecret_FullMethodName = "/server.Auth/AddSecret"
-	Auth_GetSecret_FullMethodName = "/server.Auth/GetSecret"
+	Auth_Register_FullMethodName     = "/server.Auth/Register"
+	Auth_Login_FullMethodName        = "/server.Auth/Login"
+	Auth_AddSecret_FullMethodName    = "/server.Auth/AddSecret"
+	Auth_GetSecret_FullMethodName    = "/server.Auth/GetSecret"
+	Auth_UpdateSecret_FullMethodName = "/server.Auth/UpdateSecret"
+	Auth_DeleteSecret_FullMethodName = "/server.Auth/DeleteSecret"
 )
 
 // AuthClient is the client API for Auth service.
@@ -33,6 +35,8 @@ type AuthClient interface {
 	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
 	AddSecret(ctx context.Context, in *AddSecretRequest, opts ...grpc.CallOption) (*AddSecretResponse, error)
 	GetSecret(ctx context.Context, in *GetSecretRequest, opts ...grpc.CallOption) (*GetSecretResponse, error)
+	UpdateSecret(ctx context.Context, in *UpdateSecretRequest, opts ...grpc.CallOption) (*UpdateSecretResponse, error)
+	DeleteSecret(ctx context.Context, in *DeleteSecretRequest, opts ...grpc.CallOption) (*DeleteSecretResponse, error)
 }
 
 type authClient struct {
@@ -83,6 +87,26 @@ func (c *authClient) GetSecret(ctx context.Context, in *GetSecretRequest, opts .
 	return out, nil
 }
 
+func (c *authClient) UpdateSecret(ctx context.Context, in *UpdateSecretRequest, opts ...grpc.CallOption) (*UpdateSecretResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateSecretResponse)
+	err := c.cc.Invoke(ctx, Auth_UpdateSecret_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authClient) DeleteSecret(ctx context.Context, in *DeleteSecretRequest, opts ...grpc.CallOption) (*DeleteSecretResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteSecretResponse)
+	err := c.cc.Invoke(ctx, Auth_DeleteSecret_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServer is the server API for Auth service.
 // All implementations must embed UnimplementedAuthServer
 // for forward compatibility
@@ -91,6 +115,8 @@ type AuthServer interface {
 	Login(context.Context, *LoginRequest) (*LoginResponse, error)
 	AddSecret(context.Context, *AddSecretRequest) (*AddSecretResponse, error)
 	GetSecret(context.Context, *GetSecretRequest) (*GetSecretResponse, error)
+	UpdateSecret(context.Context, *UpdateSecretRequest) (*UpdateSecretResponse, error)
+	DeleteSecret(context.Context, *DeleteSecretRequest) (*DeleteSecretResponse, error)
 	mustEmbedUnimplementedAuthServer()
 }
 
@@ -109,6 +135,12 @@ func (UnimplementedAuthServer) AddSecret(context.Context, *AddSecretRequest) (*A
 }
 func (UnimplementedAuthServer) GetSecret(context.Context, *GetSecretRequest) (*GetSecretResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSecret not implemented")
+}
+func (UnimplementedAuthServer) UpdateSecret(context.Context, *UpdateSecretRequest) (*UpdateSecretResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSecret not implemented")
+}
+func (UnimplementedAuthServer) DeleteSecret(context.Context, *DeleteSecretRequest) (*DeleteSecretResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteSecret not implemented")
 }
 func (UnimplementedAuthServer) mustEmbedUnimplementedAuthServer() {}
 
@@ -195,6 +227,42 @@ func _Auth_GetSecret_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Auth_UpdateSecret_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateSecretRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).UpdateSecret(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Auth_UpdateSecret_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).UpdateSecret(ctx, req.(*UpdateSecretRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Auth_DeleteSecret_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteSecretRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).DeleteSecret(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Auth_DeleteSecret_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).DeleteSecret(ctx, req.(*DeleteSecretRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Auth_ServiceDesc is the grpc.ServiceDesc for Auth service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -217,6 +285,14 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSecret",
 			Handler:    _Auth_GetSecret_Handler,
+		},
+		{
+			MethodName: "UpdateSecret",
+			Handler:    _Auth_UpdateSecret_Handler,
+		},
+		{
+			MethodName: "DeleteSecret",
+			Handler:    _Auth_DeleteSecret_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

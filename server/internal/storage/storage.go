@@ -103,3 +103,23 @@ func (s *Storage) GetSecret(ctx context.Context, userID int64, meta string) ([]m
 	}
 	return secret, nil
 }
+
+// UpdateSecret для обновления секрета
+func (s *Storage) UpdateSecret(ctx context.Context, userID int64, secret string, secretnew string) error {
+	_, err := s.DB.ExecContext(ctx, `
+	UPDATE secrets SET secret=$1 WHERE user_id=$2 AND secret=$3`, secretnew, userID, secret)
+	if err != nil {
+		return fmt.Errorf("error insert %w", err)
+	}
+	return nil
+}
+
+// DeleteSecret для удаления секрета
+func (s *Storage) DeleteSecret(ctx context.Context, userID int64, secret string) error {
+	_, err := s.DB.ExecContext(ctx, `
+	DELETE FROM secrets WHERE secret=$1 AND user_id=$2`, secret, userID)
+	if err != nil {
+		return fmt.Errorf("error delete %w", err)
+	}
+	return nil
+}

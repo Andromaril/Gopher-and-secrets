@@ -27,7 +27,6 @@ var loginCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Начат процесс логина")
 		u, err := user.Current()
-		//log.Info(u)
 		if err != nil {
 			log.Fatalln(err)
 			return
