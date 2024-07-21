@@ -1,4 +1,4 @@
-// Package cmd cli добавления текстовых секретов
+// Package cmd cli добавления бинарных секретов
 package cmd
 
 import (
@@ -12,26 +12,25 @@ import (
 	pb "github.com/Andromaril/Gopher-and-secrets/server/proto"
 	"github.com/Andromaril/Gopher-and-secrets/server/secret"
 	log "github.com/sirupsen/logrus"
-	"google.golang.org/grpc/metadata"
-
 	"github.com/spf13/cobra"
+	"google.golang.org/grpc/metadata"
 )
 
-// NewSecret переменная запроса на добавление секрета
+// NewBinSecret для секрета в бинарном формате
 var (
-	NewSecret pb.AddSecretRequest
+	NewBinSecret []byte
 )
 
-// TypeText константа для текстовых секретов
-const TypeText = "secret text"
+// TypeBin константа для бинарного секрета
+const TypeBin = "secret binary"
 
-// addtextCmd represents the addtext command
-var addtextCmd = &cobra.Command{
-	Use:   "addtext",
-	Short: "add text secret",
-	Long:  `add text secret, use: client addtext and flags -s secret -c comment`,
+// addbinCmd represents the addbin command
+var addbinCmd = &cobra.Command{
+	Use:   "addbin",
+	Short: "add bin secret",
+	Long:  `add bin secret, use: client addbin and flags -s secret -c comment`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Начат процесс добавления секрета")
+		fmt.Println("Начат процесс добавдения секрета в бинарном формате")
 		user, err := user.Current()
 		if err != nil {
 			log.Fatalln(err)
@@ -53,19 +52,19 @@ var addtextCmd = &cobra.Command{
 			return
 		}
 		ctxjwt := metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+jwt)
-		_, err = c.AddSecret(ctxjwt, &pb.AddSecretRequest{UserId: id, Secret: NewSecret.Secret, Meta: TypeText, Comment: NewSecret.Comment})
+		_, err = c.AddSecret(ctxjwt, &pb.AddSecretRequest{UserId: id, Secret: NewSecret.Secret, Meta: TypeBin, Comment: NewSecret.Comment})
 		if err != nil {
 			fmt.Println("Не удалось добавить секрет, пожалуйста, попробуйте еще раз")
 			fmt.Println(err)
 			return
 		}
-		fmt.Printf("Текстовый секрет успешно сохранен")
+		fmt.Printf("Бинарный секрет успешно сохранен")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(addtextCmd)
-	addtextCmd.Flags().StringVarP(&NewSecret.Secret, "secret", "s", "", "new secret")
-	addtextCmd.Flags().StringVarP(&NewSecret.Comment, "comment", "c", "", "new comment, optional")
-	addtextCmd.MarkFlagRequired("secret")
+	rootCmd.AddCommand(addbinCmd)
+	addbinCmd.Flags().StringVarP(&NewSecret.Secret, "secret", "s", "", "Binary data to save.")
+	addbinCmd.Flags().StringVarP(&NewSecret.Comment, "comment", "c", "", "new comment, optional")
+	addbinCmd.MarkFlagRequired("secret")
 }
