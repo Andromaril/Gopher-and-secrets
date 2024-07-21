@@ -7,12 +7,10 @@ import (
 	"net"
 
 	authgrpc "github.com/Andromaril/Gopher-and-secrets/server/internal/grpc"
+	interceptors "github.com/Andromaril/Gopher-and-secrets/server/internal/interseptors"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 // App структура для запуска сервера
@@ -24,17 +22,15 @@ type App struct {
 // New создает новый экземпляр структуры App
 func New(authService authgrpc.Auth, port string, secretService authgrpc.Secret) *App {
 
-	recoveryOpts := []recovery.Option{
-		recovery.WithRecoveryHandler(func(p interface{}) (err error) {
-			log.Error("Recovered from panic", slog.Any("panic", p))
+	// recoveryOpts := []recovery.Option{
+	// 	recovery.WithRecoveryHandler(func(p interface{}) (err error) {
+	// 		log.Error("Recovered from panic", slog.Any("panic", p))
 
-			return status.Errorf(codes.Internal, "internal error")
-		}),
-	}
+	// 		return status.Errorf(codes.Internal, "internal error")
+	// 	}),
+	// }
 
-	gRPCServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
-		recovery.UnaryServerInterceptor(recoveryOpts...),
-	))
+	gRPCServer := grpc.NewServer(grpc.UnaryInterceptor(interceptors.AuthCheck))
 
 	authgrpc.Register(gRPCServer, authService, secretService)
 

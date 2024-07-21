@@ -10,7 +10,6 @@ import (
 	"github.com/Andromaril/Gopher-and-secrets/client/internal/grpc"
 	"github.com/Andromaril/Gopher-and-secrets/client/internal/local"
 	pb "github.com/Andromaril/Gopher-and-secrets/server/proto"
-	"github.com/Andromaril/Gopher-and-secrets/server/secret"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc/metadata"
@@ -41,10 +40,6 @@ var addloginCmd = &cobra.Command{
 			fmt.Println("Вы не авторизированы, залогиньтесь или зарегистрируйтесь")
 			return
 		}
-		id, err := secret.DecodeToken(jwt)
-		if err != nil {
-			log.Fatalln(err)
-		}
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 		c, err := grpc.Init()
@@ -54,7 +49,7 @@ var addloginCmd = &cobra.Command{
 		}
 		ctxjwt := metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+jwt)
 		secret := NewLogin.Login + " : " + NewLogin.Password
-		_, err = c.AddSecret(ctxjwt, &pb.AddSecretRequest{UserId: id, Secret: secret, Meta: TypeLogin, Comment: NewSecret.Comment})
+		_, err = c.AddSecret(ctxjwt, &pb.AddSecretRequest{Secret: secret, Meta: TypeLogin, Comment: NewSecret.Comment})
 		if err != nil {
 			fmt.Println("Не удалось добавить секрет, пожалуйста, попробуйте еще раз")
 			fmt.Println(err)

@@ -43,7 +43,7 @@ func NewToken(user model.User, duration time.Duration) (string, error) {
 	return tokenString, nil
 }
 
-// DecodeToken дкуодирование токена
+// DecodeToken декодирование токена
 func DecodeToken(t string) (int64, error) {
 	// keyFunc := func(t *jwt.Token) (interface{}, error) {
 	// 	if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {

@@ -10,7 +10,6 @@ import (
 	"github.com/Andromaril/Gopher-and-secrets/client/internal/grpc"
 	"github.com/Andromaril/Gopher-and-secrets/client/internal/local"
 	pb "github.com/Andromaril/Gopher-and-secrets/server/proto"
-	"github.com/Andromaril/Gopher-and-secrets/server/secret"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc/metadata"
@@ -32,7 +31,7 @@ var getbinCmd = &cobra.Command{
 			fmt.Println("Вы не авторизированы, залогиньтесь или зарегистрируйтесь")
 			return
 		}
-		id, err := secret.DecodeToken(jwt)
+		//id, err := secret.DecodeToken(jwt)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -44,7 +43,7 @@ var getbinCmd = &cobra.Command{
 			return
 		}
 		ctxjwt := metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+jwt)
-		res, err := c.GetSecret(ctxjwt, &pb.GetSecretRequest{UserId: id, Meta: TypeBin})
+		res, err := c.GetSecret(ctxjwt, &pb.GetSecretRequest{Meta: TypeBin})
 		if err != nil {
 			fmt.Println("Не удалось получить секреты, пожалуйста, попробуйте еще раз")
 			return

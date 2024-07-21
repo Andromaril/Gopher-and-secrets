@@ -10,7 +10,6 @@ import (
 	"github.com/Andromaril/Gopher-and-secrets/client/internal/grpc"
 	"github.com/Andromaril/Gopher-and-secrets/client/internal/local"
 	pb "github.com/Andromaril/Gopher-and-secrets/server/proto"
-	"github.com/Andromaril/Gopher-and-secrets/server/secret"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"google.golang.org/grpc/metadata"
@@ -42,10 +41,6 @@ var addcardCmd = &cobra.Command{
 			fmt.Println("Вы не авторизированы, залогиньтесь или зарегистрируйтесь")
 			return
 		}
-		id, err := secret.DecodeToken(jwt)
-		if err != nil {
-			log.Fatalln(err)
-		}
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 		c, err := grpc.Init()
@@ -55,7 +50,7 @@ var addcardCmd = &cobra.Command{
 		}
 		ctxjwt := metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+jwt)
 		secret := NewCard.Card + " : " + NewCard.Data + " : " + NewCard.Cvc
-		_, err = c.AddSecret(ctxjwt, &pb.AddSecretRequest{UserId: id, Secret: secret, Meta: TypeCard, Comment: NewSecret.Comment})
+		_, err = c.AddSecret(ctxjwt, &pb.AddSecretRequest{Secret: secret, Meta: TypeCard, Comment: NewSecret.Comment})
 		if err != nil {
 			fmt.Println("Не удалось добавить секрет, пожалуйста, попробуйте еще раз")
 			fmt.Println(err)
@@ -74,5 +69,5 @@ func init() {
 	addcardCmd.MarkFlagRequired("card")
 	addcardCmd.MarkFlagRequired("data")
 	addcardCmd.MarkFlagRequired("cvc")
-	
+
 }

@@ -20,15 +20,17 @@ type Secret struct {
 	scrGet    SecretGet
 	scrUpdate SecretUpdate
 	scrDelete SecretDelete
+	scrAll    SecretGetAll
 }
 
 // NewSecret создание нового экземпляра Secret
-func NewSecret(scrSave SecretSave, scrGet SecretGet, scrUpdate SecretUpdate, scrDelete SecretDelete) *Secret {
+func NewSecret(scrSave SecretSave, scrGet SecretGet, scrUpdate SecretUpdate, scrDelete SecretDelete, scrAll SecretGetAll) *Secret {
 	return &Secret{
 		scrSave:   scrSave,
 		scrGet:    scrGet,
 		scrUpdate: scrUpdate,
 		scrDelete: scrDelete,
+		scrAll:    scrAll,
 	}
 }
 
@@ -50,6 +52,11 @@ type SecretUpdate interface {
 // SecretDelete для удаления секретов
 type SecretDelete interface {
 	DeleteSecret(ctx context.Context, userID int64, sec string) error
+}
+
+// SecretGetAll для получения всех секретов по id пользователя
+type SecretGetAll interface {
+	GetAll(ctx context.Context, userID int64) ([]model.Secret, error)
 }
 
 // SaveSecret для сохранения секретов
@@ -157,4 +164,36 @@ func (s *Secret) DeleteSecret(ctx context.Context, userID int64, sec string) err
 		return fmt.Errorf("error delete secret: %w", err)
 	}
 	return nil
+}
+
+// GetAll для получения всех секретов по id пользователя
+func (s *Secret) GetAll(ctx context.Context, userID int64) ([]model.Secret, error) {
+
+	log.Info("get secret")
+	sec := make([]model.Secret, 0)
+	scr, err := s.scrAll.GetAll(ctx, userID)
+	if err != nil {
+		if errors.Is(err, storage.ErrSecretNotFound) {
+			log.Error("secret not found ", err)
+
+			return scr, fmt.Errorf("error get secret: %w", err)
+		}
+		log.Error("failed to get secret ", err)
+		return scr, fmt.Errorf("error get secret: %w", err)
+	}
+	for _, value := range scr {
+		// s, err := secret.Decrypt(value.Secret, secret.MySecret)
+		// if err != nil {
+		// 	return sec, fmt.Errorf("error decrypt secret: %w", err)
+		// }
+		// c, err := secret.Decrypt(value.Comment, secret.MySecret)
+		// if err != nil {
+		// 	return sec, fmt.Errorf("error decrypt secret: %w", err)
+		// }
+		sec = append(sec, model.Secret{ID: value.SecretID, Secret: value.Secret, Comment: value.Comment, Meta: value.Meta})
+
+	}
+	log.Info("get secret successfully")
+
+	return sec, nil
 }

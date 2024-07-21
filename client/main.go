@@ -14,12 +14,20 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	err = local.InitStorageTemp()
+	if err != nil {
+		log.Fatalln(err)
+	}
 	err = local.LoadUser()
 	if err != nil {
 		log.Fatalln(err)
 	}
 	cmd.Execute()
 	err = local.UpdateUser()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	err = local.UpdateTemp()
 	if err != nil {
 		log.Fatalln(err)
 	}

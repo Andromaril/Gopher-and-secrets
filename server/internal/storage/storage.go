@@ -123,3 +123,29 @@ func (s *Storage) DeleteSecret(ctx context.Context, userID int64, secret string)
 	}
 	return nil
 }
+
+// GetAll получает секрет из бд по id пользователя
+func (s *Storage) GetAll(ctx context.Context, userID int64) ([]model.Secret, error) {
+	rows, err := s.DB.QueryContext(ctx, "SELECT id, secret, comment, meta FROM secrets WHERE user_id=$1", userID)
+	secret := make([]model.Secret, 0)
+	if err != nil {
+		log.Error("error in scan from secret select ", err)
+		if errors.Is(err, sql.ErrNoRows) {
+			return secret, fmt.Errorf("error in scan from secret select: %w", ErrSecretNotFound)
+		}
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var result model.Secret
+		err = rows.Scan(&result.SecretID, &result.Secret, &result.Comment, &result.Meta)
+		if err != nil {
+			return secret, fmt.Errorf("invalid scan when get secrets %w", err)
+		}
+		secret = append(secret, model.Secret{SecretID: result.SecretID, Secret: result.Secret, Comment: result.Comment, Meta: result.Meta})
+	}
+	err = rows.Err()
+	if err != nil {
+		return secret, fmt.Errorf("error select %w", err)
+	}
+	return secret, nil
+}

@@ -33,8 +33,8 @@ type Secret interface {
 	SaveSecret(ctx context.Context, userID int64, secret string, meta string, comment string) (int64, error)
 	GetNewSecret(ctx context.Context, userID int64, meta string) ([]model.Secret, error)
 	UpdateSecret(ctx context.Context, userID int64, secret string, secretnew string) error
-	//GetSecret(ctx context.Context, userID int64) (model.Secret, error)
 	DeleteSecret(ctx context.Context, userID int64, sec string) error
+	GetAll(ctx context.Context, userID int64) ([]model.Secret, error)
 }
 
 // Register регистрация grpc сервиса
@@ -78,11 +78,12 @@ func (s *serverAPI) Register(ctx context.Context, in *pb.RegisterRequest,
 
 func (s *serverAPI) AddSecret(ctx context.Context, in *pb.AddSecretRequest,
 ) (*pb.AddSecretResponse, error) {
-	if in.UserId == 0 || in.Secret == "" {
+	id := ctx.Value("id").(int64)
+	if id == 0 || in.Secret == "" {
 		return nil, status.Error(codes.InvalidArgument, "user id and secret is required")
 	}
 
-	id, err := s.secret.SaveSecret(ctx, in.GetUserId(), in.GetSecret(), in.GetMeta(), in.GetComment())
+	id, err := s.secret.SaveSecret(ctx, id, in.GetSecret(), in.GetMeta(), in.GetComment())
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to save secret")
 	}
@@ -91,11 +92,12 @@ func (s *serverAPI) AddSecret(ctx context.Context, in *pb.AddSecretRequest,
 
 func (s *serverAPI) GetSecret(ctx context.Context, in *pb.GetSecretRequest,
 ) (*pb.GetSecretResponse, error) {
-	if in.UserId == 0 {
+	id := ctx.Value("id").(int64)
+	if id == 0 {
 		return nil, status.Error(codes.InvalidArgument, "user id is required")
 	}
 
-	secret, err := s.secret.GetNewSecret(ctx, in.GetUserId(), in.GetMeta())
+	secret, err := s.secret.GetNewSecret(ctx, id, in.GetMeta())
 	if err != nil {
 		if errors.Is(err, storage.ErrSecretNotFound) {
 			return nil, status.Error(codes.NotFound, "secret not found")
@@ -118,11 +120,12 @@ func (s *serverAPI) GetSecret(ctx context.Context, in *pb.GetSecretRequest,
 
 func (s *serverAPI) UpdateSecret(ctx context.Context, in *pb.UpdateSecretRequest,
 ) (*pb.UpdateSecretResponse, error) {
-	if in.UserId == 0 || in.Secret == "" {
+	id := ctx.Value("id").(int64)
+	if id == 0 || in.Secret == "" {
 		return nil, status.Error(codes.InvalidArgument, "user id and secret is required")
 	}
 
-	err := s.secret.UpdateSecret(ctx, in.GetUserId(), in.GetSecret(), in.GetSecretNew())
+	err := s.secret.UpdateSecret(ctx, id, in.GetSecret(), in.GetSecretNew())
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to update secret")
 	}
@@ -131,13 +134,41 @@ func (s *serverAPI) UpdateSecret(ctx context.Context, in *pb.UpdateSecretRequest
 
 func (s *serverAPI) DeleteSecret(ctx context.Context, in *pb.DeleteSecretRequest,
 ) (*pb.DeleteSecretResponse, error) {
-	if in.UserId == 0 || in.Secret == "" {
+	id := ctx.Value("id").(int64)
+	if id == 0 || in.Secret == "" {
 		return nil, status.Error(codes.InvalidArgument, "user id and secret is required")
 	}
 
-	err := s.secret.DeleteSecret(ctx, in.GetUserId(), in.GetSecret())
+	err := s.secret.DeleteSecret(ctx, id, in.GetSecret())
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to update secret")
 	}
 	return &pb.DeleteSecretResponse{Status: success}, nil
+}
+
+func (s *serverAPI) GetAll(ctx context.Context, in *pb.GetAllRequest,
+) (*pb.GetAllResponse, error) {
+	if in.UserId == 0 {
+		return nil, status.Error(codes.InvalidArgument, "user id is required")
+	}
+
+	secret, err := s.secret.GetAll(ctx, in.GetUserId())
+	if err != nil {
+		if errors.Is(err, storage.ErrSecretNotFound) {
+			return nil, status.Error(codes.NotFound, "secret not found")
+		}
+
+		return nil, status.Error(codes.Internal, "failed to get secret")
+	}
+	var pbSecrets []*pb.Secret
+	for _, secret := range secret {
+		pbSecrets = append(pbSecrets, &pb.Secret{
+			SecretId: secret.SecretID,
+			UserId:   secret.ID,
+			Secret:   secret.Secret,
+			Meta:     secret.Meta,
+			Comment:  secret.Comment,
+		})
+	}
+	return &pb.GetAllResponse{Secret: pbSecrets}, nil
 }
