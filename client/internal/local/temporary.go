@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/Andromaril/Gopher-and-secrets/client/internal/config"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -17,7 +16,23 @@ type TempSecret struct {
 	Comment  string `json:"comment"`
 }
 
-var paths = "c:/Users/Мария/Desktop/secrettemp.json"
+func dir() string {
+	dirname, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	d := dirname + "\\Desktop\\secrettemp.json"
+	return d
+}
+
+func dirlocal() string {
+	s, err := os.UserCacheDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	dir := s + "\\Temp\\user.json"
+	return dir
+}
 
 // User для локального хранения метаинформации о юзере
 var User = make(map[string]string)
@@ -27,7 +42,8 @@ var Secret = make([]TempSecret, 0)
 
 // Storage создание файла
 func Storage() error {
-	_, err := os.OpenFile(config.LocalStorage, os.O_RDONLY|os.O_CREATE, 0777)
+	d := dirlocal()
+	_, err := os.OpenFile(d, os.O_RDONLY|os.O_CREATE, 0777)
 	if err != nil {
 		return err
 	}
@@ -36,7 +52,8 @@ func Storage() error {
 
 // StorageTemp создание файла с секретам
 func StorageTemp() error {
-	_, err := os.OpenFile(paths, os.O_RDONLY|os.O_CREATE, 0777)
+	d := dir()
+	_, err := os.OpenFile(d, os.O_RDONLY|os.O_CREATE, 0777)
 	if err != nil {
 		return err
 	}
@@ -74,7 +91,8 @@ func NewTemp() error {
 
 // LoadUser чтение файла
 func LoadUser() error {
-	data, err := os.ReadFile(config.LocalStorage)
+	d := dirlocal()
+	data, err := os.ReadFile(d)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -90,7 +108,8 @@ func LoadUser() error {
 
 // LoadTemp загрузка файла с секретами
 func LoadTemp() error {
-	datatemp, err := os.ReadFile(paths)
+	d := dir()
+	datatemp, err := os.ReadFile(d)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -110,7 +129,8 @@ func UpdateUser() error {
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(config.LocalStorage, data, 0666)
+	d := dirlocal()
+	err = os.WriteFile(d, data, 0666)
 	if err != nil {
 		return err
 	}
@@ -119,11 +139,12 @@ func UpdateUser() error {
 
 // UpdateTemp обновления файла с секретами
 func UpdateTemp() error {
+	d := dir()
 	datatemp, err := json.Marshal(Secret)
 	if err != nil {
 		return err
 	}
-	err = os.WriteFile(paths, datatemp, 0644)
+	err = os.WriteFile(d, datatemp, 0644)
 	if err != nil {
 		return err
 	}
