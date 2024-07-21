@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 
+	"github.com/Andromaril/Gopher-and-secrets/client/internal/config"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -42,8 +43,7 @@ var Secret = make([]TempSecret, 0)
 
 // Storage создание файла
 func Storage() error {
-	d := dirlocal()
-	_, err := os.OpenFile(d, os.O_RDONLY|os.O_CREATE, 0777)
+	_, err := os.OpenFile(config.LocalStorage, os.O_RDONLY|os.O_CREATE, 0777)
 	if err != nil {
 		return err
 	}
@@ -91,8 +91,7 @@ func NewTemp() error {
 
 // LoadUser чтение файла
 func LoadUser() error {
-	d := dirlocal()
-	data, err := os.ReadFile(d)
+	data, err := os.ReadFile(config.LocalStorage)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return nil
@@ -129,8 +128,7 @@ func UpdateUser() error {
 	if err != nil {
 		return err
 	}
-	d := dirlocal()
-	err = os.WriteFile(d, data, 0666)
+	err = os.WriteFile(config.LocalStorage, data, 0666)
 	if err != nil {
 		return err
 	}
