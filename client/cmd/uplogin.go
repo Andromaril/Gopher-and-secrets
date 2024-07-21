@@ -25,8 +25,8 @@ var OldLogin struct {
 // uploginCmd represents the uplogin command
 var uploginCmd = &cobra.Command{
 	Use:   "uplogin",
-	Short: "update your login/password secter",
-	Long: `update your lodin/password secret use: client oplogin and flags -l old login -p old password 
+	Short: "update your login/password secret",
+	Long: `update your login/password secret use: client uplogin and flags -l old login -p old password 
 	-u new login -n new password`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Начат процесс обновления секрета формата логин/пароль")
