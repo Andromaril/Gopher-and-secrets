@@ -1,4 +1,4 @@
-// Package cmd cli удаления секретов
+// Package cmd cli удаления секретов формата логин/пароль
 package cmd
 
 import (
@@ -16,18 +16,13 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// DeleteSecret структура запроса обновления секрета
-var (
-	DeleteSecret pb.DeleteSecretRequest
-)
-
-// deltextCmd represents the deltext command
-var deltextCmd = &cobra.Command{
-	Use:   "deltext",
-	Short: "delete your secret text",
-	Long:  `delete your secret text use: client deltext and flag -s secret`,
+// delloginCmd represents the dellogin command
+var delloginCmd = &cobra.Command{
+	Use:   "dellogin",
+	Short: "delete your login/password secret",
+	Long:  `delete your secret text use: client deltext and flag -l login -p password`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Начат процесс удаления секрета")
+		fmt.Println("Начат процесс удаления секрета формата логин.пароль")
 		user, err := user.Current()
 		if err != nil {
 			log.Fatalln(err)
@@ -49,7 +44,8 @@ var deltextCmd = &cobra.Command{
 			return
 		}
 		ctxjwt := metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+jwt)
-		_, err = c.DeleteSecret(ctxjwt, &pb.DeleteSecretRequest{UserId: id, Secret: DeleteSecret.Secret})
+		secret := OldLogin.Login + " : " + OldLogin.Password
+		_, err = c.DeleteSecret(ctxjwt, &pb.DeleteSecretRequest{UserId: id, Secret: secret})
 		if err != nil {
 			fmt.Println("Не удалось удалить секрет, пожалуйста, попробуйте еще раз")
 			return
@@ -59,7 +55,9 @@ var deltextCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(deltextCmd)
-	deltextCmd.Flags().StringVarP(&DeleteSecret.Secret, "secret", "s", "", "delete secret")
-	deltextCmd.MarkFlagRequired("secret")
+	rootCmd.AddCommand(delloginCmd)
+	delloginCmd.Flags().StringVarP(&OldLogin.Login, "login", "l", "", "secret login to delete")
+	delloginCmd.Flags().StringVarP(&OldLogin.Password, "password", "p", "", "secret password to delete")
+	delloginCmd.MarkFlagRequired("login")
+	delloginCmd.MarkFlagRequired("password")
 }

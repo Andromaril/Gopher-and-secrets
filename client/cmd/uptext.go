@@ -25,7 +25,7 @@ var (
 var uptextCmd = &cobra.Command{
 	Use:   "uptext",
 	Short: "update your secret text",
-	Long:  `update your secret text use: client uptext`,
+	Long:  `update your secret text use: client uptext and flags -o old secret -n new secret`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Начат процесс обновления секрета")
 		user, err := user.Current()
@@ -41,7 +41,6 @@ var uptextCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalln(err)
 		}
-		fmt.Println(id)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 		c, err := grpc.Init()

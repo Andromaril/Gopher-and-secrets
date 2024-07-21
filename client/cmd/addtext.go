@@ -23,8 +23,13 @@ var (
 )
 
 // var (
-// 	NewSecret2 []byte
+//
+//	NewSecret2 []byte
+//
 // )
+
+// TypeText константа для текстовых секретов
+const TypeText = "secret text"
 
 // addtextCmd represents the addtext command
 var addtextCmd = &cobra.Command{
@@ -46,7 +51,6 @@ var addtextCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalln(err)
 		}
-		fmt.Println(id)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 		c, err := grpc.Init()
@@ -55,7 +59,7 @@ var addtextCmd = &cobra.Command{
 			return
 		}
 		ctxjwt := metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+jwt)
-		_, err = c.AddSecret(ctxjwt, &pb.AddSecretRequest{UserId: id, Secret: NewSecret.Secret, Meta: "secret text", Comment: NewSecret.Comment})
+		_, err = c.AddSecret(ctxjwt, &pb.AddSecretRequest{UserId: id, Secret: NewSecret.Secret, Meta: TypeText, Comment: NewSecret.Comment})
 		if err != nil {
 			fmt.Println("Не удалось добавить секрет, пожалуйста, попробуйте еще раз")
 			fmt.Println(err)

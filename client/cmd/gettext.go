@@ -22,7 +22,7 @@ var gettextCmd = &cobra.Command{
 	Short: "get your secret text",
 	Long:  `get your secret text use: client gettext`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("gettext called")
+		fmt.Println("Начат процесс получения текстовых секретов")
 		user, err := user.Current()
 		if err != nil {
 			log.Fatalln(err)
@@ -36,7 +36,6 @@ var gettextCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalln(err)
 		}
-		fmt.Println(id)
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 		defer cancel()
 		c, err := grpc.Init()
@@ -45,20 +44,20 @@ var gettextCmd = &cobra.Command{
 			return
 		}
 		ctxjwt := metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+jwt)
-		res, err := c.GetSecret(ctxjwt, &pb.GetSecretRequest{UserId: id, Meta: "secret text"})
+		res, err := c.GetSecret(ctxjwt, &pb.GetSecretRequest{UserId: id, Meta: TypeText})
 		if err != nil {
 			fmt.Println("Не удалось получить секреты, пожалуйста, попробуйте еще раз")
 			return
 		}
+		fmt.Println("Ваши текстовые секреты:")
 		for _, i := range res.Secret {
 			if i.Comment != "" {
-				fmt.Printf("secret: %s, comment: %s \n", i.Secret, i.Comment)
+				fmt.Printf("secret text: %s, comment: %s \n", i.Secret, i.Comment)
 			} else {
-				fmt.Printf("secret: %s, comment: нет комментария \n", i.Secret)
+				fmt.Printf("secret text: %s, comment: нет комментария \n", i.Secret)
 			}
 		}
-		//fmt.Println(res)
-		fmt.Printf("Текстовые секреты успешно получены")
+		fmt.Println("Текстовые секреты успешно получены")
 	},
 }
 

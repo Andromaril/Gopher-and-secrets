@@ -1,4 +1,4 @@
-// Package cmd cli удаления секретов
+// Package cmd cli получение секретов формата логин/пароль
 package cmd
 
 import (
@@ -16,18 +16,13 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-// DeleteSecret структура запроса обновления секрета
-var (
-	DeleteSecret pb.DeleteSecretRequest
-)
-
-// deltextCmd represents the deltext command
-var deltextCmd = &cobra.Command{
-	Use:   "deltext",
-	Short: "delete your secret text",
-	Long:  `delete your secret text use: client deltext and flag -s secret`,
+// getloginCmd represents the getlogin command
+var getloginCmd = &cobra.Command{
+	Use:   "getlogin",
+	Short: "get your login/password",
+	Long:  `get your login/password use: client getlogin`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Начат процесс удаления секрета")
+		fmt.Println("Начат процесс получения секрета формата логин/пароль")
 		user, err := user.Current()
 		if err != nil {
 			log.Fatalln(err)
@@ -49,17 +44,23 @@ var deltextCmd = &cobra.Command{
 			return
 		}
 		ctxjwt := metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+jwt)
-		_, err = c.DeleteSecret(ctxjwt, &pb.DeleteSecretRequest{UserId: id, Secret: DeleteSecret.Secret})
+		res, err := c.GetSecret(ctxjwt, &pb.GetSecretRequest{UserId: id, Meta: TypeLogin})
 		if err != nil {
-			fmt.Println("Не удалось удалить секрет, пожалуйста, попробуйте еще раз")
+			fmt.Println("Не удалось получить секреты, пожалуйста, попробуйте еще раз")
 			return
 		}
-		fmt.Println("Секрет успешно удален")
+		fmt.Println("Ваши секреты формата логин/пароль")
+		for _, i := range res.Secret {
+			if i.Comment != "" {
+				fmt.Printf("secret login/password: %s, comment: %s \n", i.Secret, i.Comment)
+			} else {
+				fmt.Printf("secret login/password: %s, comment: нет комментария \n", i.Secret)
+			}
+		}
+		fmt.Println("Секреты формата логин/пароль успешно получены")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(deltextCmd)
-	deltextCmd.Flags().StringVarP(&DeleteSecret.Secret, "secret", "s", "", "delete secret")
-	deltextCmd.MarkFlagRequired("secret")
+	rootCmd.AddCommand(getloginCmd)
 }
