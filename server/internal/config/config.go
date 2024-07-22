@@ -23,7 +23,7 @@ var (
 // ParseFlags для флагов либо переменных окружения
 func ParseFlags() {
 	flag.StringVar(&GrpcPort, "a", "localhost:8080", "address and port to run server")
-	flag.StringVar(&Databaseflag, "d", "postgres://postgres:qwerty123@localhost:5432/server", "database path")
+	flag.StringVar(&Databaseflag, "d", "postgres://postgres:qwerty123@localhost:5432/server2", "database path")
 	flag.StringVar(&ConfigKey, "c", "", "json-file flag")
 	flag.Parse()
 	if envGrpcPort := os.Getenv("ADDRESS"); envGrpcPort != "" {

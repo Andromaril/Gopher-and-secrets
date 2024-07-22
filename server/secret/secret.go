@@ -21,11 +21,6 @@ type MyClaims struct {
 
 // NewToken функция для генерирования jwt token
 func NewToken(user model.User, duration time.Duration) (string, error) {
-	//token := jwt.New(jwt.SigningMethodHS256)
-	// claims := token.Claims.(jwt.MapClaims)
-	// claims["uid"] = user.ID
-	// claims["login"] = user.Login
-	// claims["exp"] = time.Now().Add(duration).Unix()
 	claims := MyClaims{
 		RegisteredClaims: jwt.RegisteredClaims{},
 		UID:              user.ID,
@@ -45,21 +40,6 @@ func NewToken(user model.User, duration time.Duration) (string, error) {
 
 // DecodeToken декодирование токена
 func DecodeToken(t string) (int64, error) {
-	// keyFunc := func(t *jwt.Token) (interface{}, error) {
-	// 	if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-	// 		return nil, fmt.Errorf("Unexpected signature method: %v", t.Header["alg"])
-	// 	}
-	// 	return tokenEncodeString, nil
-	// }
-	// claims := &MyClaims{}
-	// parsedToken, err := jwt.ParseWithClaims(string(tokenEncodeString), claims, keyFunc)
-	// if err != nil {
-	// 	log.Fatalf("Parse error: %v", err)
-	// }
-
-	// if !parsedToken.Valid {
-	// 	log.Fatalf("Invalid token")
-	// }
 	token, err := jwt.ParseWithClaims(t, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return tokenEncodeString, nil
 	}, jwt.WithLeeway(5*time.Second))

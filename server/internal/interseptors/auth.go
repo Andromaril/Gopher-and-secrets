@@ -2,10 +2,10 @@ package interceptors
 
 import (
 	"context"
-	"log"
 
 	"github.com/Andromaril/Gopher-and-secrets/server/secret"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -20,7 +20,7 @@ var (
 
 // AuthCheck interceptor для верификации jwt-токена
 func AuthCheck(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
-	log.Println("--> unary interceptor: ", info.FullMethod)
+	log.Println(info.FullMethod)
 	_, ok := skipmethods[info.FullMethod]
 	if ok {
 		return handler(ctx, req)

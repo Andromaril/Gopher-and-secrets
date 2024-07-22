@@ -8,7 +8,13 @@ import (
 	"fmt"
 
 	"github.com/Andromaril/Gopher-and-secrets/server/internal/model"
+	"github.com/golang-migrate/migrate/v4"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
+
+	// for migration
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	log "github.com/sirupsen/logrus"
+	//_ "github.com/lib/pq"
 )
 
 // переменные ошибок
@@ -30,6 +36,20 @@ func Init(storagePath string) (*Storage, error) {
 	if err != nil {
 		return nil, fmt.Errorf("fatal open sql connection %w", err)
 	}
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
+
+	m, err := migrate.NewWithDatabaseInstance(
+		"file://./../internal/storage/migrations",
+		"pgx", driver)
+	if err != nil {
+		panic(err)
+	}
+	err = m.Up()
+	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
+		log.Error(err)
+	}
+	log.Info("Migrations applied")
+
 	return &Storage{DB: db}, nil
 }
 
