@@ -29,6 +29,18 @@ type Storage struct {
 	DB *sql.DB
 }
 
+type Database interface {
+	SaveUser(ctx context.Context, login string, password []byte) (int64, error)
+	GetUser(ctx context.Context, login string) (model.User, error)
+	SaveSecret(ctx context.Context, userID int64, secret string, meta string, comment string) (int64, error)
+	GetSecret(ctx context.Context, userID int64, meta string) ([]model.Secret, error)
+	UpdateSecret(ctx context.Context, userID int64, secret string, secretnew string) error
+	DeleteSecret(ctx context.Context, userID int64, secret string) error
+	GetAll(ctx context.Context, userID int64) ([]model.Secret, error)
+	//Init(storagePath string) (*Storage, error)
+	//Login(ctx context.Context, email string, password string) (token string, err error)
+}
+
 // Init инициализация бд
 func Init(storagePath string) (*Storage, error) {
 

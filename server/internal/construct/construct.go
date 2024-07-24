@@ -47,9 +47,7 @@ func New(userSave UserSave, userGet UserGet, tokenTTL time.Duration) *Auth {
 
 // RegisterNewUser функция для регистрации нового пользователя
 func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (int64, error) {
-
 	log.Info("register user")
-
 	passHash, err := bcrypt.GenerateFromPassword([]byte(pass), bcrypt.DefaultCost)
 	if err != nil {
 		log.Error("failed to generate password hash", err)

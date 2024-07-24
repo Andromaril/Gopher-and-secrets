@@ -182,14 +182,6 @@ func (s *Secret) GetAll(ctx context.Context, userID int64) ([]model.Secret, erro
 		return scr, fmt.Errorf("error get secret: %w", err)
 	}
 	for _, value := range scr {
-		// s, err := secret.Decrypt(value.Secret, secret.MySecret)
-		// if err != nil {
-		// 	return sec, fmt.Errorf("error decrypt secret: %w", err)
-		// }
-		// c, err := secret.Decrypt(value.Comment, secret.MySecret)
-		// if err != nil {
-		// 	return sec, fmt.Errorf("error decrypt secret: %w", err)
-		// }
 		sec = append(sec, model.Secret{ID: value.SecretID, Secret: value.Secret, Comment: value.Comment, Meta: value.Meta})
 
 	}

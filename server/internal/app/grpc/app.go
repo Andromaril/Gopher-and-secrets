@@ -22,14 +22,6 @@ type App struct {
 // New создает новый экземпляр структуры App
 func New(authService authgrpc.Auth, port string, secretService authgrpc.Secret) *App {
 
-	// recoveryOpts := []recovery.Option{
-	// 	recovery.WithRecoveryHandler(func(p interface{}) (err error) {
-	// 		log.Error("Recovered from panic", slog.Any("panic", p))
-
-	// 		return status.Errorf(codes.Internal, "internal error")
-	// 	}),
-	// }
-
 	gRPCServer := grpc.NewServer(grpc.UnaryInterceptor(interceptors.AuthCheck))
 
 	authgrpc.Register(gRPCServer, authService, secretService)

@@ -20,6 +20,7 @@ type serverAPI struct {
 	pb.UnimplementedAuthServer
 	auth   Auth
 	secret Secret
+	//S      storage.Database
 }
 
 // Auth интерфейс описывающий авторизацию
@@ -44,11 +45,13 @@ func Register(gRPCServer *grpc.Server, auth Auth, secret Secret) {
 
 // Login обработчик запроса логина
 func (s *serverAPI) Login(ctx context.Context, in *pb.LoginRequest) (*pb.LoginResponse, error) {
+
 	if in.Login == "" || in.Password == "" {
 		return nil, status.Error(codes.InvalidArgument, "email and password is required")
 	}
 
 	token, err := s.auth.Login(ctx, in.GetLogin(), in.GetPassword())
+
 	if err != nil {
 		if errors.Is(err, construct.ErrInvalidCredentials) {
 			return nil, status.Error(codes.InvalidArgument, "invalid email or password")
@@ -82,7 +85,6 @@ func (s *serverAPI) AddSecret(ctx context.Context, in *pb.AddSecretRequest,
 	if id == 0 || in.Secret == "" {
 		return nil, status.Error(codes.InvalidArgument, "user id and secret is required")
 	}
-
 	id, err := s.secret.SaveSecret(ctx, id, in.GetSecret(), in.GetMeta(), in.GetComment())
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to save secret")

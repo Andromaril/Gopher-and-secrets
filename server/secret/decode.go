@@ -29,7 +29,7 @@ func Encrypt(text, MySecret string) (string, error) {
 	return Encode(cipherText), nil
 }
 
-// Decode Декодирует текст
+// Decode декодирует текст
 func Decode(s string) []byte {
 	data, err := base64.StdEncoding.DecodeString(s)
 	if err != nil {
@@ -38,7 +38,7 @@ func Decode(s string) []byte {
 	return data
 }
 
-// Decrypt для расшивровывания текста
+// Decrypt для расшифровывания текста
 func Decrypt(text, MySecret string) (string, error) {
 	block, err := aes.NewCipher([]byte(MySecret))
 	if err != nil {
