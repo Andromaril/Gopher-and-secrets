@@ -51,7 +51,7 @@ func Init(storagePath string) (*Storage, error) {
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://./../internal/storage/migrations",
+		"file://./../storage/migrations",
 		"pgx", driver)
 	if err != nil {
 		panic(err)
