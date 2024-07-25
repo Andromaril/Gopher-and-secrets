@@ -51,7 +51,7 @@ func Init(storagePath string) (*Storage, error) {
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://./../storage/migrations",
+		"file://./../internal/storage/migrations",
 		"pgx", driver)
 	if err != nil {
 		panic(err)
@@ -74,12 +74,6 @@ func (s *Storage) SaveUser(ctx context.Context, login string, password []byte) (
 	if err != nil {
 		return 0, fmt.Errorf("error insert %w", err)
 	}
-	// if err != nil {
-	// 	var pgErr *pgconn.PgError
-	// 	if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-	// 		return 0, fmt.Errorf("error insert %w", ErrUserExists)
-	// 	}
-	// }
 
 	return id, nil
 }

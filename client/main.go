@@ -8,6 +8,12 @@ import (
 	"github.com/Andromaril/Gopher-and-secrets/client/internal/local"
 )
 
+var (
+	buildVersion string = "N/A"
+	buildDate    string = "N/A"
+	buildCommit  string = "N/A"
+)
+
 func main() {
 	config.ParseFlags()
 	err := local.InitStorage()
@@ -22,6 +28,7 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	log.Infof("Build Version %s, Build date %s, Build commit %s", buildVersion, buildDate, buildCommit)
 	cmd.Execute()
 	err = local.UpdateUser()
 	if err != nil {

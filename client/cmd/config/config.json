@@ -1,0 +1,5 @@
+{
+    "port": "localhost:44044",
+    "database_dsn" : "postgres://postgres:password@localhost:5432/bdname",
+    "local_storage" : "temp/user.json"
+}
